@@ -33,7 +33,7 @@ VOLUME ["/var/log/nginx"]
 
 EXPOSE 80 443
 
-COPY script/start.sh /root/start.sh
-RUN chmod +x /root/start.sh
+#COPY script/start.sh /root/start.sh
+#RUN chmod +x /root/start.sh
 
-CMD ["/bin/bash", "/root/start.sh"]
+CMD ["nginx"]
