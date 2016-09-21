@@ -7,7 +7,6 @@ ENV PROJECT_ENV prod
 RUN  set -x && \
     apk --update add tzdata logrotate && \
     ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime && \
-    date && \
     rm -rf /var/cache/apk/*
 
 # Install tools...
@@ -24,19 +23,20 @@ RUN set -x && \
       git \
     && rm -rf /var/cache/apk/*
 
+# Custom nginx configuration
+ADD nginx/nginx.conf /etc/nginx/nginx.conf
+ADD nginx/default.conf /etc/nginx/conf.d/default.conf
 
-COPY conf/nginx.conf /etc/nginx/nginx.conf
-COPY conf/default.conf /etc/nginx/conf.d/default.conf
-ADD conf/logrotate /etc/logrotate.d/nginx
-ADD conf/logrotate-cron /etc/periodic/daily/logrotate-cron
-RUN chmod +x /etc/periodic/daily/logrotate-cron
+# Custom logrotate configuration for nginx
+ADD logrotate/nginx /etc/logrotate.d/nginx
+ADD logrotate/cron /etc/periodic/daily/logrotate-cron
 
-# Sources
+# Custom entry point
+ADD scripts/start.sh /root/start.sh
+
+RUN chmod +x /root/start.sh \
+  && chmod +x /etc/periodic/daily/logrotate-cron
+
 WORKDIR /var/www/html
-
 VOLUME ["/var/log/nginx"]
-
-COPY scripts/start.sh /root/start.sh
-RUN chmod +x /root/start.sh
-
 CMD ["/root/start.sh"]
